@@ -11,7 +11,7 @@
 ## Features
 1. Map Blips
 2. UI Prompts
-3. Pedestrian Spawning/Management (COMING SOON)
+3. Pedestrian Spawning/Management
 4. Object Spawning/Management (COMING SOON)
 5. We are always open to more ideas!
 
