@@ -5,6 +5,7 @@ local colors = {
   orange = "\027[33m",
   navy = "\027[34m",
   magenta = "\027[35m",
+  purple = "\027[35m",
   cyan = "\027[36m",
   gray = "\027[90m",
   grey = "\027[90m",
