@@ -58,7 +58,7 @@ function FilesAPI:Save(resourcename, filepath, content, mode)
     file:Save(content, mode)
 end
 
-function FilesAPI:Update(content, mode)
+function FilesAPI:Update(resourcename, filepath, content, mode)
     local file = FilesAPI:Open(resourcename, filepath)
     file:Update(content, mode)
 end
