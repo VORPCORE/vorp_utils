@@ -4,6 +4,7 @@ AddEventHandler('getUtils', function(cb)
     UtilAPI.General = GeneralAPI
     UtilAPI.Files = FilesAPI
     UtilAPI.Print = PrintAPI
-
+    UtilAPI.DataView = DataView
+    
     cb(UtilAPI)
 end)

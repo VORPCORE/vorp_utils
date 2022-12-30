@@ -67,7 +67,7 @@ local function SetColors(str)
 end
 
 -- Dump a table to a string, makes it so you can easily print our a table to see what is in it.
-local function DumpTable(o)
+function DumpTable(o)
   if type(o) == 'table' then
       local s = '{ '
       for k,v in pairs(o) do
