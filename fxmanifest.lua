@@ -5,6 +5,7 @@ lua54 'yes'
 author "VORP @Bytesizd"
 
 client_scripts {
+  'client/data/*.lua',
   'client/services/*.lua',
   'client/*.lua'
 }
@@ -20,8 +21,7 @@ shared_scripts {
   'shared/services/*.lua'
 }
 
-
-version '1.0.0'
+version '1.1.0'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_utils'
