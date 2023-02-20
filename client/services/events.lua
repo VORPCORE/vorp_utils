@@ -10,24 +10,25 @@ local function startGlobalEventListeners(eventgroup)
 	Citizen.CreateThread(function()
 		while true do
 			Citizen.Wait(0)
-			if #EventListeners > 0 or EventsDevMode[eventgroup + 1] then
+            local eventmode = eventgroup + 1
+			if #EventListeners > 0 or EventsDevMode[eventmode] == true then
 				local size = GetNumberOfEvents(eventgroup)
 				if size > 0 then
 					for i = 0, size - 1 do
 						local eventAtIndex = GetEventAtIndex(eventgroup, i)
 						if EVENTS[eventAtIndex] then
-							if EventsDevMode[eventgroup + 1] then
+							if EventsDevMode[eventmode] == true then
 								print("EVENT TRIGGERED:",EVENTS[eventAtIndex].name)
 							end
 
-							local eventDataStruct = DataView.ArrayBuffer(8*EventsAPI.EVENTS[eventAtIndex].datasize) --memory allocation
+							local eventDataStruct = DataView.ArrayBuffer(8*EVENTS[eventAtIndex].datasize) --memory allocation
 
 							for p = 0,EVENTS[eventAtIndex].datasize - 1, 1 do
 								eventDataStruct:SetInt32(8 * p, 0) --memory allocation
 							end
 
 							local is_data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(),
-								EventsAPI.EVENTS[eventAtIndex].datasize) -- GET_EVENT_DATA
+								EVENTS[eventAtIndex].datasize) -- GET_EVENT_DATA
 
 							local datafields = {}
 							if is_data_exists then
@@ -35,6 +36,7 @@ local function startGlobalEventListeners(eventgroup)
 									datafields[#datafields + 1] = eventDataStruct:GetInt32(8 * t)
 								end
 							end
+          
 							if EventListeners[eventAtIndex] then
 								for index, event in ipairs(EventListeners[eventAtIndex]) do
 									event.trigger(datafields)

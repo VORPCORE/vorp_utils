@@ -1,6 +1,6 @@
 PedAPI = {}
 
-function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, options)
+function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, options, outfit)
     local PedClass = {}
 
     if CheckVar(safeground, true) then
@@ -13,10 +13,10 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
             print('Trying to spawn Ped in invalid location!')
             return nil
         end
-    
+
         local foundground, groundZ, normal = GetGroundZAndNormalFor_3dCoord(x, y, z)
-    
-        if foundground then 
+
+        if foundground then
             z = groundZ
         else
             print("Trying to spawn Ped with no ground!")
@@ -29,6 +29,7 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
         Wait(10)
         RequestModel(hash)
     end
+
 
     if location == nil or location == 'world' then
         PedClass.Ped = CreatePed(hash, x, y, z, CheckVar(heading, 0), true, true, 0, 0)
@@ -53,7 +54,7 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
             VS_NUM_SEATS = 8
         }
 
-        PedClass.Ped = CreatePedInsideVehicle(options.vehicle, hash,  CheckVar(seats[options.seat], -2), 1, 1, 1)
+        PedClass.Ped = CreatePedInsideVehicle(options.vehicle, hash, CheckVar(seats[options.seat], -2), 1, 1, 1)
     elseif location == 'mount' then
         if options == nil or options.mount == nil then
             print('mount is required to spawn a ped in a mount')
@@ -63,11 +64,28 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
         PedClass.Ped = CreatePedOnMount(options.mount, hash, -1, true, true, true, true)
     else
         print("Error: Not a valid location for ped")
-    end
-    
+    end -- ApplyPedMetapedOutfit
+
     Citizen.InvokeNative(0x58A850EAEE20FAA3, PedClass.Ped)
     Citizen.InvokeNative(0x9587913B9E772D29, PedClass.Ped, true) --place entity on ground
-    Citizen.InvokeNative(0x283978A15512B2FE, PedClass.Ped, true) --SetRandomOutfitVariation
+
+
+    if outfit then
+        -- local metaped_outfit = Citizen.InvokeNative(0x13154A76CE0CF9AB, hash, outfit, Citizen.ResultAsInteger()) -- RequestMetapedOutfit
+        Citizen.InvokeNative(0x283978A15512B2FE, PedClass.Ped, true)
+        Citizen.InvokeNative(
+            0x1902C4CFCC5BE57C,
+            PedClass.Ped,
+            outfit--[[ Hash ]]
+        )
+
+        Citizen.InvokeNative(
+            0xCC8CA3E88256E58F,
+            PedClass.Ped--[[ Ped ]]
+        )
+    else
+        Citizen.InvokeNative(0x283978A15512B2FE, PedClass.Ped, true) --SetRandomOutfitVariation
+    end
 
 
     function PedClass:Freeze(state)
@@ -104,9 +122,13 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
     end
 
     -- https://github.com/femga/rdr3_discoveries/blob/f729ba03f75a591ce5c841642dc873345242f612/weapons/weapons.lua
-    function PedClass:GiveWeapon(weaponhash, ammocount, forceinhand, forceinholster, attachpoint, allowmultiplecopies, ignoreunlocks, permanentdegredation)
-                     --  (ped, weaponhash, ammocount, forceinhand, forceinholster, attachpoint, allowmultiplecopies, p7, p8, reason, ignoreunlocks, permanentdegredation, p12)
-        GiveWeaponToPed_2(self.Ped, CheckVar(weaponhash, 0x64356159), CheckVar(ammocount, 500), CheckVar(forceinhand, true), CheckVar(forceinholster, false), CheckVar(attachpoint, 3), CheckVar(allowmultiplecopies, false), 0.5, 1.0, 752097756,  CheckVar(ignoreunlocks, false), CheckVar(permanentdegredation, 0), false)
+    function PedClass:GiveWeapon(weaponhash, ammocount, forceinhand, forceinholster, attachpoint, allowmultiplecopies,
+                                 ignoreunlocks, permanentdegredation)
+        --  (ped, weaponhash, ammocount, forceinhand, forceinholster, attachpoint, allowmultiplecopies, p7, p8, reason, ignoreunlocks, permanentdegredation, p12)
+        GiveWeaponToPed_2(self.Ped, CheckVar(weaponhash, 0x64356159), CheckVar(ammocount, 500),
+            CheckVar(forceinhand, true), CheckVar(forceinholster, false), CheckVar(attachpoint, 3),
+            CheckVar(allowmultiplecopies, false), 0.5, 1.0, 752097756, CheckVar(ignoreunlocks, false),
+            CheckVar(permanentdegredation, 0), false)
     end
 
     -- https://github.com/femga/rdr3_discoveries/tree/master/AI/FLEE_ATTRIBUTES
@@ -134,7 +156,7 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
         end
 
 
-        SetPedCombatRange(self.Ped,  CheckVar(attackrange, 1))
+        SetPedCombatRange(self.Ped, CheckVar(attackrange, 1))
         SetPedCombatAbility(self.Ped, CheckVar(abilitylevel, 0))
 
         -- 0 - Stationary (Will just stand in place)
@@ -146,7 +168,8 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
 
     -- https://github.com/femga/rdr3_discoveries/tree/master/AI/COMBAT_STYLES
     function PedClass:SetCombatStyle(combathash, duration)
-        Citizen.InvokeNative(0x8ACC0506743A8A5C, self.Ped, GetHashKey(CheckVar(combathash, 'SituationAllStop')), 1, CheckVar(duration, 240.0))
+        Citizen.InvokeNative(0x8ACC0506743A8A5C, self.Ped, GetHashKey(CheckVar(combathash, 'SituationAllStop')), 1,
+            CheckVar(duration, 240.0))
     end
 
     function PedClass:ClearCombatStyle()
@@ -162,10 +185,71 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
     function PedClass:Remove()
         DeletePed(self.Ped)
         DeleteEntity(self.Ped)
+        Citizen.InvokeNative(0x5E94EA09E7207C16, self.Ped) --Delete Entity
     end
 
     function PedClass:GetPed()
         return self.Ped
+    end
+
+    function PedClass:AddPedToGroup(group)
+        SetPedAsGroupMember(self.Ped, CheckVar(group, GetPedGroupIndex(PlayerPedId())))
+        return self.Ped
+    end
+
+    function PedClass:FollowToOffsetOfEntity(entity, offsetX, offsetY, offsetZ, movementSpeed, timeout, stoppingRange, persistFollowing, p9, walkOnly)
+        TaskFollowToOffsetOfEntity(self.Ped, CheckVar(entity, PlayerPedId()), offsetX, offsetY, offsetZ, movementSpeed,
+            timeout, stoppingRange, persistFollowing, p9, walkOnly, 0, 0, 1)
+        return self.Ped
+    end
+
+    function PedClass:SetRelationshipWithGroup(relationship, group)
+        SetRelationshipBetweenGroups(relationship, GetPedRelationshipGroupHash(self.Ped), group)
+    end
+
+    function PedClass:SetAttributePoints(attribute, value)
+        Citizen.InvokeNative(0x09A59688C26D88DF, self.Ped, attribute, value)
+    end
+
+    function PedClass:AddAttributePoints(attribute, value)
+        Citizen.InvokeNative(0x75415EE0CB583760, self.Ped, attribute, value)
+    end
+
+    function PedClass:SetAttributeBaseRank(attribute, value)        
+        Citizen.InvokeNative(0x5DA12E025D47D4E5, self.Ped, attribute, value)
+    end
+    function PedClass:SetAttributeBonousRank(attribute, value)        
+        Citizen.InvokeNative(0x920F9488BD115EFB, self.Ped, attribute, value)
+    end
+
+    function PedClass:SetAttributeOverpower(attribute, value, makesound)        
+        Citizen.InvokeNative(0xF6A7C08DF2E28B28, self.Ped, attribute, value, makesound)
+    end
+
+    function PedClass:GetTaskStatus(task)
+        return GetScriptTaskStatus(self.Ped, task)
+    end
+
+    function PedClass:ClearTasks()
+        ClearPedTasks(self.Ped)
+    end
+
+    function PedClass:IsDead()
+        IsEntityDead(self.Ped)
+    end
+
+    function PedClass:ChangeOutfit(outfit)
+        Citizen.InvokeNative(0x283978A15512B2FE, self.Ped, true)
+        Citizen.InvokeNative(
+            0x1902C4CFCC5BE57C,
+            self.Ped,
+            outfit--[[ Hash ]]
+        )
+
+        Citizen.InvokeNative(
+            0xCC8CA3E88256E58F,
+            self.Ped--[[ Ped ]]
+        )
     end
 
     return PedClass
