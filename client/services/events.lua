@@ -1,5 +1,6 @@
 EventsAPI = {}
 EventListeners = {}
+EventListenerCount = 0
 EventsDevMode = {
 	false,
 	false
@@ -11,20 +12,18 @@ local function startGlobalEventListeners(eventgroup)
 		while true do
 			Citizen.Wait(0)
             local eventmode = eventgroup + 1
-			if #EventListeners > 0 or EventsDevMode[eventmode] == true then
+			if EventListenerCount > 0 or EventsDevMode[eventmode] == true then
 				local size = GetNumberOfEvents(eventgroup)
 				if size > 0 then
 					for i = 0, size - 1 do
 						local eventAtIndex = GetEventAtIndex(eventgroup, i)
 						if EVENTS[eventAtIndex] then
-							if EventsDevMode[eventmode] == true then
-								print("EVENT TRIGGERED:",EVENTS[eventAtIndex].name)
-							end
-
 							local eventDataStruct = DataView.ArrayBuffer(8*EVENTS[eventAtIndex].datasize) --memory allocation
 
+
 							for p = 0,EVENTS[eventAtIndex].datasize - 1, 1 do
-								eventDataStruct:SetInt32(8 * p, 0) --memory allocation
+                                -- TODO: When new type data is added, code here will need to change to allow other types than int.
+                                eventDataStruct:SetInt32(8 * p, 0) --memory pre-allocation
 							end
 
 							local is_data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(),
@@ -33,8 +32,13 @@ local function startGlobalEventListeners(eventgroup)
 							local datafields = {}
 							if is_data_exists then
 								for t = 0,EVENTS[eventAtIndex].datasize - 1, 1 do
+                                    -- TODO: When new type data is added, code here will need to change to allow other types than int.
 									datafields[#datafields + 1] = eventDataStruct:GetInt32(8 * t)
 								end
+							end
+
+                            if EventsDevMode[eventmode] == true then
+								print("EVENT TRIGGERED:", EVENTS[eventAtIndex].name, DumpTable(datafields))
 							end
           
 							if EventListeners[eventAtIndex] then
@@ -64,6 +68,7 @@ function EventsAPI:RegisterEventListener(eventname, cb)
 		eventname = eventname,
 		trigger = cb
 	}
+    EventListenerCount = EventListenerCount + 1
 
 	return { key, postition }
 end
@@ -72,12 +77,12 @@ end
 function EventsAPI:RenoveEventListener(listener)
 	if EventListeners[listener[1]] and EventListeners[listener[1]][listener[2]] then
 		EventListeners[listener[1]][listener[2]] = nil
+        EventListenerCount = EventListenerCount - 1
 	end
 
 	if #EventListeners[listener[1]] < 1 then --clear memory if there are not registered listeners for this event
 		EventListeners[listener[1]] = nil
 	end
-	
 end
 
 function EventsAPI:DevMode(state, type)
@@ -96,4 +101,3 @@ AddEventHandler("vorp:SelectedCharacter", function(charid)
 	startGlobalEventListeners(0) -- 0 = SCRIPT_EVENT_QUEUE_AI (CEventGroupScriptAI)
 	startGlobalEventListeners(1) -- 1 = SCRIPT_EVENT_QUEUE_NETWORK (CEventGroupScriptNetwork)
 end)
-
