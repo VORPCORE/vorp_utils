@@ -127,7 +127,3 @@ AddEventHandler("vorp:SelectedCharacter", function(charid)
 	startGlobalEventListeners(0) -- 0 = SCRIPT_EVENT_QUEUE_AI (CEventGroupScriptAI)
 	startGlobalEventListeners(1) -- 1 = SCRIPT_EVENT_QUEUE_NETWORK (CEventGroupScriptNetwork)
 end)
-
-EventsAPI:RegisterEventListener('EVENT_ENTITY_DAMAGED', function (args)
-    print(DumpTable(args))
-end)
