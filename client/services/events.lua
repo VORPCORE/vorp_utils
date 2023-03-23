@@ -6,6 +6,37 @@ EventsDevMode = {
 	false
 }
 
+
+--? These functions are for DataView memory allocation
+local function pullData(event, eventDataStruct) -- Memory address pull
+    local datafields = {}
+
+    for p = 0, event.datasize - 1, 1 do
+        local current_data_element = event.dataelements[p]
+        if current_data_element.type == 'float' then
+            datafields[#datafields + 1] = eventDataStruct:GetFloat32(8 * p) 
+        else
+            --? Defaults to int
+            datafields[#datafields + 1] = eventDataStruct:GetInt32(8 * p) 
+        end
+    end
+
+    return datafields
+end
+
+local function allocateData(event, eventDataStruct) --memory pre-allocation
+    for p = 0, event.datasize - 1, 1 do
+        local current_data_element = event.dataelements[p]
+        if current_data_element.type == 'float' then
+            eventDataStruct:SetFloat32(8 * p, 0)
+        else
+            --? Defaults to int
+            eventDataStruct:SetInt32(8 * p, 0)
+        end
+    end
+end
+
+--? Global event listener
 local function startGlobalEventListeners(eventgroup)
 	-- Inspired by https://github.com/femga/rdr3_discoveries/tree/master/AI/EVENTS
 	Citizen.CreateThread(function()
@@ -18,23 +49,17 @@ local function startGlobalEventListeners(eventgroup)
 					for i = 0, size - 1 do
 						local eventAtIndex = GetEventAtIndex(eventgroup, i)
 						if EVENTS[eventAtIndex] then
-							local eventDataStruct = DataView.ArrayBuffer(8*EVENTS[eventAtIndex].datasize) --memory allocation
+							local eventDataStruct = DataView.ArrayBuffer(8*EVENTS[eventAtIndex].datasize) --memory heap reservation
 
 
-							for p = 0,EVENTS[eventAtIndex].datasize - 1, 1 do
-                                -- TODO: When new type data is added, code here will need to change to allow other types than int.
-                                eventDataStruct:SetInt32(8 * p, 0) --memory pre-allocation
-							end
+							allocateData(EVENTS[eventAtIndex], eventDataStruct)
 
 							local is_data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(),
 								EVENTS[eventAtIndex].datasize) -- GET_EVENT_DATA
 
 							local datafields = {}
 							if is_data_exists then
-								for t = 0,EVENTS[eventAtIndex].datasize - 1, 1 do
-                                    -- TODO: When new type data is added, code here will need to change to allow other types than int.
-									datafields[#datafields + 1] = eventDataStruct:GetInt32(8 * t)
-								end
+                                datafields = pullData(EVENTS[eventAtIndex], eventDataStruct)
 							end
 
                             if EventsDevMode[eventmode] == true then
@@ -54,6 +79,7 @@ local function startGlobalEventListeners(eventgroup)
 	end)
 end
 
+--? Register events to be listened for
 function EventsAPI:RegisterEventListener(eventname, cb)
 	local key = GetHashKey(eventname)
 	local postition = 1
@@ -100,4 +126,8 @@ RegisterNetEvent("vorp:SelectedCharacter")
 AddEventHandler("vorp:SelectedCharacter", function(charid)
 	startGlobalEventListeners(0) -- 0 = SCRIPT_EVENT_QUEUE_AI (CEventGroupScriptAI)
 	startGlobalEventListeners(1) -- 1 = SCRIPT_EVENT_QUEUE_NETWORK (CEventGroupScriptNetwork)
+end)
+
+EventsAPI:RegisterEventListener('EVENT_ENTITY_DAMAGED', function (args)
+    print(DumpTable(args))
 end)
