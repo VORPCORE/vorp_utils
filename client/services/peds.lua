@@ -1,6 +1,6 @@
 PedAPI = {}
 
-function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, options, outfit)
+function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, options, outfit,networked)
     local PedClass = {}
 
     if CheckVar(safeground, true) then
@@ -24,15 +24,30 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
         end
     end
 
-    local hash = GetHashKey(CheckVar(modelhash, "s_m_m_valdeputy_01"))
-    while not HasModelLoaded(hash) do
-        Wait(10)
-        RequestModel(hash)
+    --local hash = GetHashKey(CheckVar(modelhash, "s_m_m_valdeputy_01"))
+      local countToBreak = 100
+
+    if not IsModelInCdimage(modelhash) then
+        return print("Invalid model")
+    end
+
+    while not HasModelLoaded(modelhash) do
+        RequestModel(modelhash)
+        countToBreak = countToBreak - 1
+        if countToBreak == 0 then
+            break
+        end
+        Wait(50)
+    end
+    
+    local hash
+    if type(modelhash) == "string" then
+        hash = joaat(modelhash)
     end
 
 
     if location == nil or location == 'world' then
-        PedClass.Ped = CreatePed(hash, x, y, z, CheckVar(heading, 0), true, true, 0, 0)
+        PedClass.Ped = CreatePed(hash, x, y, z, CheckVar(heading, 0), networked or true, true, false, false)
     elseif location == 'vehicle' then
         if options == nil or options.vehicle == nil then
             print('Vehicle is required to spawn a ped in a vehicle')
@@ -54,7 +69,7 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
             VS_NUM_SEATS = 8
         }
 
-        PedClass.Ped = CreatePedInsideVehicle(options.vehicle, hash, CheckVar(seats[options.seat], -2), 1, 1, 1)
+        PedClass.Ped = CreatePedInsideVehicle(options.vehicle, hash, CheckVar(seats[options.seat], -2), networked or true, true, true)
     elseif location == 'mount' then
         if options == nil or options.mount == nil then
             print('mount is required to spawn a ped in a mount')
