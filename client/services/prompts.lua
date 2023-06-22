@@ -7,14 +7,6 @@ function PromptsAPI:SetupPromptGroup()
 
     ----------------- PromptGroup Specific APIs below -----------------
     function GroupsClass:ShowGroup(text)
-        local playerPed = PlayerPedId()
-        local isDead = IsEntityDead(playerPed)
-
-
-        if isDead then
-            return
-        end
-
         PromptSetActiveGroupThisFrame(self.PromptGroup, CreateVarString(10, 'LITERAL_STRING', CheckVar(text, 'Prompt Info')))
     end
 
