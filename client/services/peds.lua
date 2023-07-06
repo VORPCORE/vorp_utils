@@ -47,9 +47,9 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
 
 
     if location == nil or location == 'world' then
-        if not networked then
+        if networked == false then
             network = false
-        else
+        elseif network == nil or network then
             network = true
         end
         PedClass.Ped = CreatePed(hash, x, y, z, CheckVar(heading, 0), networked , true, false, false)
