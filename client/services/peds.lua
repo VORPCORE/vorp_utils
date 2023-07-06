@@ -47,7 +47,12 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
 
 
     if location == nil or location == 'world' then
-        PedClass.Ped = CreatePed(hash, x, y, z, CheckVar(heading, 0), networked or true, true, false, false)
+        if not networked then
+            network = false
+        else
+            network = true
+        end
+        PedClass.Ped = CreatePed(hash, x, y, z, CheckVar(heading, 0), networked , true, false, false)
     elseif location == 'vehicle' then
         if options == nil or options.vehicle == nil then
             print('Vehicle is required to spawn a ped in a vehicle')
