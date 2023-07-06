@@ -3,7 +3,7 @@ PedAPI = {}
 function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, options, outfit,networked,vector4)
     local PedClass = {}
       if not x and not y and not z and not heading then
-        x,y,z,heading = table.unpack(vecotr4)
+        x,y,z,heading = table.unpack(vector4)
       end
     if CheckVar(safeground, true) then
         local valid, outPosition = GetSafeCoordForPed(x, y, z, false, 16)
