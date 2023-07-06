@@ -2,7 +2,7 @@ PedAPI = {}
 
 function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, options, outfit,networked,vector4)
     local PedClass = {}
-      if not x and not yand not z and not heading then
+      if not x and not y and not z and not heading then
         x,y,z,heading = table.unpack(vecotr4)
       end
     if CheckVar(safeground, true) then
