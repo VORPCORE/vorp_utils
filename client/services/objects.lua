@@ -21,13 +21,18 @@ function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
         return 
     end 
 
-    ObjClass.Obj = CreateObject(hash, x, y, z, CheckVar(networked, true))
+  ObjClass.Obj = CreateObject(hash, x, y, z, CheckVar(networked, true))
+    while not DoesEntityExist(ObjClass.Obj) do
+        Wait(10)
+    end
     SetEntityHeading(ObjClass.Obj, heading)
 
     if CheckVar(method, "standard") == "standard" then
         PlaceObjectOnGroundProperly(ObjClass.Obj, true)
+        Wait(100)
         FreezeEntityPosition(ObjClass.Obj, true)
     end
+
 
     function ObjClass:PickupLight(state)
         Citizen.InvokeNative(0x7DFB49BCDB73089A, self.Obj,  CheckVar(state, true))
