@@ -1,14 +1,25 @@
 ObjectAPI = {}
 
--- networked: Whether to create a network object for the object. If false, the object exists only locally.
+
+
+---comment
+---@param modelhash type|<string, number>
+---@param x any
+---@param y any
+---@param z any
+---@param heading any
+---@param networked type|<boolean>
+---@param method type|<string>
+---@return table
 function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
     local ObjClass = {}
-
-    local hash = GetHashKey(CheckVar(modelhash, "p_package09"))
-    while not HasModelLoaded(hash) do
-        Wait(10)
-        RequestModel(hash)
-    end
+    local hash = nil
+     
+    if ObjectAPI:LoadModel(modelhash) then
+        hash = modelhash
+    else
+        return 
+    end 
 
     ObjClass.Obj = CreateObject(hash, x, y, z, CheckVar(networked, true))
     SetEntityHeading(ObjClass.Obj, heading)
@@ -63,4 +74,24 @@ function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
     end
 
     return ObjClass
+end
+
+---@param modelhash type|<string, number>
+---@return boolean
+function ObjectAPI:LoadModel(modelhash)
+    if IsModelInCdimage(modelhash) then
+        RequestModel(modelhash)
+        local count = 0
+        while not HasModelLoaded(modelhash) do
+            Wait(10)
+            count = count + 1
+            if count > 1000 then
+                print("Model could not load" .. modelhash)
+                return false
+            end
+        end
+        return true
+    end
+    print("Model not found: " .. modelhash)
+    return false
 end
