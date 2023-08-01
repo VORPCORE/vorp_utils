@@ -22,15 +22,15 @@ function FilesAPI:Open(resourcename, filepath)
         return filedata
     end
 
-    function FileClass:Save(content, mode)
+    function FileClass:Save(content, mode, dataLenght)
         if CheckMode(mode) then
             content = json.encode(content)
         end
 
-        SaveResourceFile(self.ResourceName, self.FilePath, content)
+        SaveResourceFile(self.ResourceName, self.FilePath, content,dataLenght)
     end
 
-    function FileClass:Update(content, mode)
+    function FileClass:Update(content, mode, dataLenght)
         local filedata =  LoadResourceFile(self.ResourceName, self.FilePath)
 
         if CheckMode(mode) then
@@ -41,7 +41,7 @@ function FilesAPI:Open(resourcename, filepath)
             filedata = filedata .. content
         end
 
-        SaveResourceFile(self.ResourceName, self.FilePath, filedata)
+        SaveResourceFile(self.ResourceName, self.FilePath, filedata,dataLenght )
     end
 
     return FileClass

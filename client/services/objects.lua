@@ -8,20 +8,23 @@ ObjectAPI = {}
 ---@param y any
 ---@param z any
 ---@param heading any
----@param networked type|<boolean>
+---@param networked type <boolean,nil>
 ---@param method type|<string>
----@return table
+---@return type <table,nil>
 function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
     local ObjClass = {}
-    local hash = nil
-     
-    if ObjectAPI:LoadModel(modelhash) then
-        hash = modelhash
-    else
-        return 
-    end 
+    local hash = modelhash
+    local isNetworked = networked
 
-  ObjClass.Obj = CreateObject(hash, x, y, z, CheckVar(networked, true))
+    if not Shared:LoadModel(hash) then
+        return nil
+    end
+
+    if isNetworked == nil then
+        isNetworked = false
+    end
+
+    ObjClass.Obj = CreateObject(hash, x, y, z, isNetworked, false, false, false, false)
     while not DoesEntityExist(ObjClass.Obj) do
         Wait(10)
     end
@@ -35,24 +38,24 @@ function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
 
 
     function ObjClass:PickupLight(state)
-        Citizen.InvokeNative(0x7DFB49BCDB73089A, self.Obj,  CheckVar(state, true))
+        Citizen.InvokeNative(0x7DFB49BCDB73089A, self.Obj, CheckVar(state, true))
     end
 
-    function ObjClass:Freeze(state) 
+    function ObjClass:Freeze(state)
         FreezeEntityPosition(self.Obj, CheckVar(state, true))
     end
 
-    function ObjClass:SetHeading(head) 
-        SetEntityHeading(self.Obj, CheckVar(state, head))
+    function ObjClass:SetHeading(state)
+        SetEntityHeading(self.Obj, CheckVar(state, true))
     end
 
-    function ObjClass:PlaceOnGround(state) 
+    function ObjClass:PlaceOnGround(state)
         PlaceObjectOnGroundProperly(self.Obj, CheckVar(state, true))
     end
 
     -- The engine will keep object when players leave the area
-    function ObjClass:SetAsMission(state) 
-        SetEntityAsMissionEntity(self.Obj, CheckVar(state, true))
+    function ObjClass:SetAsMission(state)
+        SetEntityAsMissionEntity(self.Obj, CheckVar(state, true), true)
     end
 
     -- The engine will remove when players leave the area
@@ -69,7 +72,6 @@ function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
         SetNotJumpableByHorse(self.Obj, CheckVar(state, true))
     end
 
-
     function ObjClass:Remove()
         DeleteObject(self.Obj)
     end
@@ -79,24 +81,4 @@ function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
     end
 
     return ObjClass
-end
-
----@param modelhash type|<string, number>
----@return boolean
-function ObjectAPI:LoadModel(modelhash)
-    if IsModelInCdimage(modelhash) then
-        RequestModel(modelhash)
-        local count = 0
-        while not HasModelLoaded(modelhash) do
-            Wait(10)
-            count = count + 1
-            if count > 1000 then
-                print("Model could not load" .. modelhash)
-                return false
-            end
-        end
-        return true
-    end
-    print("Model not found: " .. modelhash)
-    return false
 end

@@ -12,6 +12,7 @@ AddEventHandler('getUtils', function(cb)
     UtilAPI.Destruct = DestructionAPI
     UtilAPI.Render = RenderAPI
     UtilAPI.Gps = GpsApi
+    UtilAPI.Shared = Shared
 
     cb(UtilAPI)
 end)
