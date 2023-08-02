@@ -35,7 +35,7 @@ function ObjectAPI:Create(modelhash, x, y, z, heading, networked, method)
         Wait(100)
         FreezeEntityPosition(ObjClass.Obj, true)
     end
-
+    SetModelAsNoLongerNeeded(hash)
 
     function ObjClass:PickupLight(state)
         Citizen.InvokeNative(0x7DFB49BCDB73089A, self.Obj, CheckVar(state, true))

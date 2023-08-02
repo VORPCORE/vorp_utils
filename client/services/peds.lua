@@ -99,7 +99,7 @@ function PedAPI:Create(modelhash, x, y, z, heading, location, safeground, option
     else
         print("Error: Not a valid location for ped")
     end -- ApplyPedMetapedOutfit
-
+    SetModelAsNoLongerNeeded(hash)
     Citizen.InvokeNative(0x58A850EAEE20FAA3, PedClass.Ped)
     Citizen.InvokeNative(0x9587913B9E772D29, PedClass.Ped, true) --place entity on ground
 

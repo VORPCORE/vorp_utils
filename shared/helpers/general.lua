@@ -1,4 +1,4 @@
-Shared= {}
+Shared = {}
 
 function CheckVar(val, def)
     if val == nil then
@@ -29,6 +29,7 @@ function Shared:LoadModel(modelhash)
                 print("Model could not load" .. modelhash)
                 return false
             end
+            RequestModel(modelhash)
         end
         return true
     end
@@ -36,4 +37,3 @@ function Shared:LoadModel(modelhash)
     print("Model not found: " .. modelhash)
     return false
 end
-
