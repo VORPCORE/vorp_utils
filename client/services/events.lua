@@ -102,6 +102,10 @@ end
 
 -- remove event listeners is best practice for memory management. however, this only applies if you are creating temporary listeners.
 function EventsAPI:RemoveEventListener(listener)
+	if not listener then
+		return
+	end
+
 	if EventListeners[listener[1]] and EventListeners[listener[1]][listener[2]] then
 		EventListeners[listener[1]][listener[2]] = nil
 		EventListenerCount = EventListenerCount - 1
