@@ -9,12 +9,12 @@ function GpsApi:SetGps(x, y, z, color)
     local pl = GetEntityCoords(player)
 
     if color and type(color) == "string" then
-       color = joaat(color)
+        color = joaat(color)
     end
 
     StartGpsMultiRoute(color or joaat("COLOR_RED"), true, true)
-    AddPointToGpsMultiRoute(pl.x, pl.y, pl.z)
-    AddPointToGpsMultiRoute(x, y, z)
+    AddPointToGpsMultiRoute(pl.x, pl.y, pl.z, false)
+    AddPointToGpsMultiRoute(x, y, z, false)
     SetGpsMultiRouteRender(true)
 end
 

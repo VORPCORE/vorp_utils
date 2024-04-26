@@ -50,13 +50,11 @@ function BlipAPI:SetBlip(name, sprite, scale, x, y, z, BlipStyle)
     return BlipClass
 end
 
--- ! needs to be removed as its already being used in the class above no need to have duplicated code doing the same thing ! --
+
 function BlipAPI:RemoveBlip(blip)
-      print("dont use this, call the class instead this will be removed in the future")
-        RemoveBlip(blip)
+    RemoveBlip(blip)
 end
 
 function BlipAPI:AddRadius(radius, x, y, z, hash)
-    print("dont use this, call the class instead this will be removed in the future")
     return Citizen.InvokeNative(0x45f13b7e0a15c880, hash or -1282792512, x, y, z, radius)
 end
