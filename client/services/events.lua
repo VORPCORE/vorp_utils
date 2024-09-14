@@ -111,7 +111,7 @@ function EventsAPI:RemoveEventListener(listener)
 		EventListenerCount = EventListenerCount - 1
 	end
 
-	if #EventListeners[listener[1]] < 1 then --clear memory if there are not registered listeners for this event
+	if EventListeners[listener[1]] and #EventListeners[listener[1]] < 1 then --clear memory if there are not registered listeners for this event
 		EventListeners[listener[1]] = nil
 	end
 end
