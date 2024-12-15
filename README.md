@@ -16,7 +16,7 @@
 5. We are always open to more ideas!
 
 ## API Documentation
-[Vorp API Docs - Utils](https://outsider31000.github.io/VORP_API-docs/posts/utils)
+[Vorp API Docs - Utils](https://github.com/VORPCORE/VORP_Documentation/blob/main/old_docs/docs/api/utils.md)
 
 ## Requirements
 - [VORP_Core](https://github.com/VORPCORE/vorp-core-lua)
