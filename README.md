@@ -1,3 +1,9 @@
+> [!WARNING]
+> 
+> **DO NOT USE VORP Utils.**
+> 
+> It is deprecated. Use [VORP Lib](https://github.com/VORPCORE/vorp_lib) instead.
+
 # Vorp Utils 
 
 > A Vorp Utility Script that allows developers to easily interact with RedM Natives and VorpCore in a Vorp standardized way. The goal of this is to make it easier to use some of the more complicated, or heavily lined natives.
